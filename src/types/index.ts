@@ -9,9 +9,9 @@ export interface Exercise {
   id: string;
   name: string;
   gifUrl: string;
-  bodyPart: string;
-  equipment: string;
-  target: string;
+  bodyParts: string[];
+  equipments: string[];
+  targets: string[];
   instructions?: string[];
   secondaryMuscles?: string[];
 }
@@ -41,4 +41,4 @@ export interface User {
   height?: number;
 }
 
-export type BodyPart = 'pecho' | 'piernas' | 'espalda' | 'core' | 'brazos' | 'hombros' | 'todo';
+export type BodyPart = 'pecho' | 'piernas' | 'back' | 'core' | 'brazos' | 'hombros' | 'todo' ;

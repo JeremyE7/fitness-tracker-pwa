@@ -2,11 +2,7 @@ import axios from 'axios';
 import { Exercise } from '../types';
 
 const api = axios.create({
-  baseURL: 'https://exercisedb.p.rapidapi.com',
-  headers: {
-    'X-RapidAPI-Key': import.meta.env.VITE_RAPIDAPI_KEY,
-    'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-  }
+  baseURL: 'https://www.exercisedb.dev/api/v1',
 });
 
 const bodyPartMap: Record<string, string> = {
@@ -53,15 +49,19 @@ const equipmentMap: Record<string, string> = {
   'wheel roller': 'rueda abdominal'
 };
 
-export const getAllExercises = async (limit: number = 1500): Promise<Exercise[]> => {
-  const response = await api.get(`/exercises?limit=${limit}`);
-  return response.data.map((ex: any) => ({
-    id: ex.id,
+export const getAllExercises = async (limit: number = 100, query: string = ''): Promise<Exercise[]> => {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (query) params.append('query', query);
+  const response = await api.get(`/exercises`, { params });
+  console.log('Fetched exercises:', response);
+  return response.data.data.map((ex: any) => ({
+    id: ex.exerciseId,
     name: ex.name,
     gifUrl: ex.gifUrl,
-    bodyPart: bodyPartMap[ex.bodyPart] || ex.bodyPart,
-    equipment: equipmentMap[ex.equipment] || ex.equipment,
-    target: ex.target,
+    bodyParts: ex.bodyParts,
+    equipments: ex.equipments,
+    targets: ex.targetMuscles,
     instructions: ex.instructions,
     secondaryMuscles: ex.secondaryMuscles
   }));
@@ -74,9 +74,9 @@ export const getExerciseById = async (id: string): Promise<Exercise> => {
     id: ex.id,
     name: ex.name,
     gifUrl: ex.gifUrl,
-    bodyPart: bodyPartMap[ex.bodyPart] || ex.bodyPart,
-    equipment: equipmentMap[ex.equipment] || ex.equipment,
-    target: ex.target,
+    bodyParts: ex.bodyParts,
+    equipments: ex.equipments,
+    targets: ex.targetMuscles,
     instructions: ex.instructions,
     secondaryMuscles: ex.secondaryMuscles
   };

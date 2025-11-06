@@ -14,7 +14,7 @@ export const exerciseKeys = {
 export const useAllExercises = () => {
   return useQuery({
     queryKey: exerciseKeys.lists(),
-    queryFn: () => getAllExercises(1500),
+    queryFn: () => getAllExercises(100),
     staleTime: 1000 * 60 * 60 * 24,
     gcTime: 1000 * 60 * 60 * 24,
   });
@@ -36,11 +36,11 @@ export const useFilteredExercises = (
         : true;
 
       const matchesBodyPart = bodyPart !== 'todo'
-        ? exercise.bodyPart === bodyPart
+        ? exercise.bodyParts.includes(bodyPart)
         : true;
 
       const matchesEquipment = equipment
-        ? exercise.equipment === equipment
+        ? exercise.equipments.includes(equipment)
         : true;
 
       return matchesSearch && matchesBodyPart && matchesEquipment;
@@ -76,7 +76,7 @@ export const useExercisesByBodyPart = (bodyPart: BodyPart) => {
 
   const filtered = useMemo(() => {
     if (!allExercises || bodyPart === 'todo') return allExercises || [];
-    return allExercises.filter((ex) => ex.bodyPart === bodyPart);
+    return allExercises.filter((ex) => ex.bodyParts.includes(bodyPart));
   }, [allExercises, bodyPart]);
 
   return { data: filtered, isLoading, error };
@@ -91,9 +91,14 @@ export const useExerciseStats = () => {
     const bodyPartCounts: Record<string, number> = {};
     const equipmentCounts: Record<string, number> = {};
 
+    if(!exercises) return { bodyPartCounts, equipmentCounts, total: 0 };
     exercises.forEach((ex) => {
-      bodyPartCounts[ex.bodyPart] = (bodyPartCounts[ex.bodyPart] || 0) + 1;
-      equipmentCounts[ex.equipment] = (equipmentCounts[ex.equipment] || 0) + 1;
+      ex.bodyParts.forEach((bodyPart) => {
+        bodyPartCounts[bodyPart] = (bodyPartCounts[bodyPart] || 0) + 1;
+      });
+      ex.equipments.forEach((equipment) => {
+        equipmentCounts[equipment] = (equipmentCounts[equipment] || 0) + 1;
+      });
     });
 
     return { bodyPartCounts, equipmentCounts, total: exercises.length };
